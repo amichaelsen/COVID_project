@@ -3,6 +3,14 @@
 Store ongoing thoughts and observations here in reverse chronological order. 
 
 
+### 11/10/21
+
+Imported data for state populations to scale absolute count data as proportions for better interstate comparison. 
+
+Found potential source for vaccination data [here](https://covid.cdc.gov/covid-data-tracker/#vaccinations_vacc-total-admin-rate-total).
+
+Created method for plotting features by state over time. 
+
 ### 11/05/21
 
 First few questions from grad project, 
