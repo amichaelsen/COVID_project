@@ -5,7 +5,14 @@ Store ongoing thoughts and observations here in reverse chronological order.
 
 ### 11/18/21
 
-Time Series Regression Notes:
+#### Vaccine Data Cleaning Thoughts:
+
+During the time frame we have covid data for, no vaccines for kids, so can take "administered" as the count, and fill in 12+ numbers from this (where 0 before data was split by age). Need to similarly smooth out jumps for 18+ and 65+. 
+
+Need to identify which metrics to use, doses administered, doses of which vaccines?, fully vaccinated or one doses?, keep track of vaccine type??? 
+
+
+#### Time Series Regression Notes:
 
 
 https://otexts.com/fpp2/forecasting-regression.html#ex-ante-versus-ex-post-forecasts
