@@ -3,6 +3,27 @@
 Store ongoing thoughts and observations here in reverse chronological order. 
 
 
+### 11/18/21
+
+Time Series Regression Notes:
+
+
+https://otexts.com/fpp2/forecasting-regression.html#ex-ante-versus-ex-post-forecasts
+
+https://otexts.com/fpp2/forecasting-regression.html#building-a-predictive-regression-model
+
+
+Data collection:
+
+Average temperatures by state
+
+https://www.ncdc.noaa.gov/cag/divisional/mapping/110/tavg/202010/ytd/value
+
+Vaccination by state and age group?? 
+
+https://data.cdc.gov/Vaccinations/COVID-19-Vaccinations-in-the-United-States-Jurisdi/unsk-b7fc
+
+
 ### 11/10/21
 
 Imported data for state populations to scale absolute count data as proportions for better interstate comparison. 
