@@ -2,17 +2,17 @@
 \contentsline {subsection}{\numberline {1.1}The COVID-19 Pandemic}{2}{}%
 \contentsline {subsection}{\numberline {1.2}COVID-19 Data Tracking}{2}{}%
 \contentsline {subsection}{\numberline {1.3}Research Questions}{3}{}%
-\contentsline {subsubsection}{\numberline {1.3.1}Affects of Weather}{3}{}%
-\contentsline {subsubsection}{\numberline {1.3.2}Affects of Age-Distribution}{3}{}%
-\contentsline {subsubsection}{\numberline {1.3.3}Affects of Adjacent States}{3}{}%
 \contentsline {subsection}{\numberline {1.4}Literature Review}{3}{}%
 \contentsline {section}{\numberline {2}Methodology}{3}{}%
-\contentsline {subsection}{\numberline {2.1}The Data}{4}{}%
+\contentsline {subsection}{\numberline {2.1}The Data}{3}{}%
+\contentsline {subsubsection}{\numberline {2.1.1}COVID-19 Cases Data}{4}{}%
+\contentsline {subsubsection}{\numberline {2.1.2}Weather Data}{4}{}%
+\contentsline {subsubsection}{\numberline {2.1.3}Vaccination Data}{4}{}%
 \contentsline {subsection}{\numberline {2.2}Data Processing}{4}{}%
 \contentsline {subsubsection}{\numberline {2.2.1}Data Cleaning}{4}{}%
 \contentsline {subsubsection}{\numberline {2.2.2}Feature Engineering}{4}{}%
 \contentsline {subsubsection}{\numberline {2.2.3}Causal Inference}{4}{}%
-\contentsline {subsubsection}{\numberline {2.2.4}Modeling}{4}{}%
+\contentsline {subsubsection}{\numberline {2.2.4}Forecast Modeling}{5}{}%
 \contentsline {section}{\numberline {3}Results}{5}{}%
 \contentsline {subsubsection}{\numberline {3.0.1}Dataset Findings}{5}{}%
 \contentsline {subsubsection}{\numberline {3.0.2}Model Findings}{5}{}%
