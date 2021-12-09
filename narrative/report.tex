@@ -2,6 +2,10 @@
 
 \usepackage{sectsty}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{ colorlinks=true, urlcolor=blue}
+
+\usepackage{wrapfig}
 
 % Margins
 \topmargin=-0.45in
@@ -18,7 +22,8 @@
 
 
 
-\title{DATA 200 Graduate Project\\ Topic 1: Dataset A}
+\title{DATA 200 Graduate Project\\ {\Large Topic 1: COVID-19}\\
+{\large Dataset A: Testing \& Mortality Statistics}}
 \author{ Anya Michaelsen (3034964414) }
 \date{}
 
@@ -27,8 +32,7 @@
 %\pagebreak
 
 % Optional TOC
- \tableofcontents
-% \pagebreak
+{ \hypersetup{hidelinks} \tableofcontents }% \pagebreak
 
 %--Paper--
 
@@ -79,12 +83,9 @@ The goal of this research is to produce models for COVID-19 cases, as measured b
 \begin{enumerate}
 \item[\bf Q1] Can weather data, both current and historical averages, be used to improve state-level models for the spread of COVID-19? Can we infer from these models whether extreme temperatures, (high, low, or either), affect the spread of COVID-19? 
 \item[\bf Q2] Does the ratio of COVID-19 cases by age have any significant effect in predicting COVID-19 deaths?
-\item[\bf Q3] Does incorporating COVID data from adjacent states significantly improve our state level COVID models?
+%\item[\bf Q3] Does incorporating COVID data from adjacent states significantly improve our state level COVID models?
 \end{enumerate}
 
-
-%
-%
 %\subsubsection{Affects of Weather}
 %
 %
@@ -110,41 +111,88 @@ The goal of this research is to produce models for COVID-19 cases, as measured b
 %%examine the traffic project and ``change-point" methods more for ideas on how to handle this question 
 
 \subsection{Literature Review}
-A brief survey of related work on the topic(s) of your analysis and how your project differs from or complements existing research.
+
+In modeling the spread of infectious disease, a common model is the SIR model, which splits populations into three groups: S-Susceptible, I-Infected, and R-Recovered (or sometimes Removed). Then probabilities are assigned for moving from S to I to R. Expansions on this model add addition categories such E-Exposed, or V-Vaccinated\footnote{ \href{https://www.nature.com/articles/s41598-021-84055-6}{\textit{Inefficiency of SIR models in forecasting COVID-19 epidemic: a case study of Isfahan} Shiva Moein et. al.}}. Some studies have also considered the effects of temperatures as a possible predictor for COVID transmission\footnote{\href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7793668/}{\textit{Does Temperature Affect COVID-19 Transmission?}, Aly Zein Elabdeen Kassem}}. Other studies still have explore the effects (and possible interactions) of age and sex on fatality rates from COVID\footnote{\href{https://www.nature.com/articles/s41598-021-97711-8}{\textit{An international comparison of age and sex dependency of COVID-19 deaths in 2020: a descriptive analysis} Peter Bauer, Jonas Brugger, Franz K\"onig \& Martin Posch} }.
+
+
+
 
 \section{Methodology}
 
-Methodology: carefully describe the methods you use and why they are appropriate for answering your search questions. It must include
-\begin{itemize}
-\item a brief overview of causal inference, which should be written in a way such that another student in Data 100 who has never been exposed to the concept can carry out the analyses involving the datasets in your project.
-\item a detailed description of how modeling is done in your project, including inference or prediction methods used, feature engineering and regularization if applicable, and cross-validation or test data as appropriate for model selection and evaluation.
-\end{itemize}
+%Methodology: carefully describe the methods you use and why they are appropriate for answering your search questions. It must include
+%\begin{itemize}
+%%\item a brief overview of causal inference, which should be written in a way such that another student in Data 100 who has never been exposed to the concept can carry out the analyses involving the datasets in your project.
+%\item a detailed description of how modeling is done in your project, including inference or prediction methods used, feature engineering and regularization if applicable, and cross-validation or test data as appropriate for model selection and evaluation.
+%\end{itemize}
+
+This section outlines the various datasets used in the research, including descriptions of the initial data, significant cleaning or processing and scaling. The second section describes how causal inference factors into data analysis, with a focus on modeling. The third section describes how modeling was performed for each question outlined in Section 1.3.
 
 
 \subsection{The Data}
 
-The primary datasets for this analysis pertain to COVID-19 cases in the United States from April 2020 through March 2021.  
+The primary datasets for this analysis pertain to COVID-19 cases in the United States from April 2020 through March 2021.  One dataset, by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University, logs daily COVID-19 metrics by state, while the other tracks breakdown of COVID cases by various patient demographics, including age and sex. 
 
 \subsubsection{COVID-19 Cases Data}
+The primary dataset for COVID-19 data is the \texttt{csse\_covid\_19\_daily\_reports\_us} data compiled by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. This contains daily COVID numbers for all 50 states, plus the District of Columbia, several US territories (e.g. Guam, Puerto Rico) and two cruise ships (Diamond Princess and Grand Princess). For this analysis, we restricted to only consider the 48 continental US states and the District of Columbia (D.C.). 
+%
+The COVID-19 metrics reported included: 
+\begin{itemize}
+  \setlength\itemsep{0.1em}
+\item \texttt{Confirmed} - Aggregated case count for the state.
+\item \texttt{Deaths} - Aggregated death toll for the state.
+\item \texttt{Recovered} - Aggregated Recovered case count for the state.
+\item \texttt{Active} - Aggregated confirmed cases that have not been resolved. 
+\item \texttt{Case\_Fatality\_Ratio} - Number recorded deaths * 100/ Number confirmed cases.
+%\item \texttt{Incident\_Rate} - cases per 100,000 persons.
+%\item \texttt{Total\_Test\_Results} - Total number of people who have been tested.
+%\item \texttt{People\_Hospitalized} - Total number of people hospitalized.  %(Nullified on Aug 31, see Issue #3083)
+\end{itemize}
+As a primary metric of COVID-19 cases, we focused on the \texttt{Confirmed} metric. The database reports aggregate values, so to examine new cases over time the first step was to compute differences from one day to the next of the aggregates. Furthermore, to make inter-state comparisons possible, we divided these resulting values by the total population for each state, which came from the 2019 Census and was downloaded from \href{https://www.kaggle.com/peretzcohen/2019-census-us-population-data-by-state}{this} Kaggle Dataset. 
+
+One difficulty  arose in computing differences from adjacent days due to how the data was time-stamped. Each entry has a \texttt{Last\_Updated} field, that stores the time of the update in UTC. Additionally, prior to April 23, 2020, the \textit{time of day} for the report is close to 23:59 UTC (although not always consistently, with some falling on the next day in UTC), whereas after April 23, times are reported between 03:30 and 04:00 UTC. As a result, around this time shift there appear to be multiple entries for the same day, as well as no entries for another. To correct this anamoly, data entries reported \textit{after} April 22 were shifted up one day before extracting the local date per row. 
+
+Another irregularity in the data reporting was that \texttt{Case\_Fatality\_Ratio} and \texttt{Mortality\_Rate} (not mentioned in the documentation), were actually feature for the same metric, with the latter being used November 2020, and then replaced by the former. These columns were thus combined into a single column.
 
 
+\begin{wrapfigure}{r}{0.5\textwidth}
+\centering
+\includegraphics[scale=0.55]{"../figures/death_proportions_by_age.png"}
+\caption{COVID Deaths by Age Group}
+\end{wrapfigure}
+The second data set, created and maintained by CDC \href{https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-by-Sex-and-Age/9bhg-hcku}{here}, contains statistics of death counts by COVID-19 broken down by state, month, sex, and age group (among other data). For our analysis we took the smallest granularity, monthly, and focused on age groupings for each state. Since the age groupings overlapped, we restricted to looking at the following disjoint bins:  0-17,  18-29, 30-39, 40-49, 50-64, 65-74, 75-84, and 85 years and over. We first filled NA's, and took sums across these bins to compute the proportion of deaths accounted for by each age group (within the state, year, and month groupings)\footnote{For columns where the total across all ages was 0, a proportion of zero was given to all age groups.}.  In Figure 1 we see that, as expected, older age groups accounted for much larger proportions of deaths. 
+
+%/figures/death_proportions_by_age.png
+
+
+
+\newpage
 \subsubsection{Weather Data}
+The weather data was obtained from NOAA, the National Oceanic and Atmospheric Administration, which maintains monthly data of recorded temperatures by "Division" (subsets of states). The data source can be found \href{https://www.ncdc.noaa.gov/cag/divisional/mapping/110/tavg/202010/ytd/value}{here}. While the data here are spatially more granular than the COVID case data, with multiple divisions per state, it is less granular temporally, with temperature values per month only. Furthermore, NOAA does not include the District of Columbia as a Division, so this region is excluded from the weather modeling analysis. The weather data range from late 1800s to 2021, covering the range of dates found in the COVID cases data. 
 
-\subsubsection{Vaccination Data}
-
-
-
-\subsection{Data Processing}
-Lorem Ipsum 
-
-\subsubsection{Data Cleaning}
-Lorem Ipsum 
-
-\subsubsection{Feature Engineering}
-Lorem Ipsum 
+Since global warming has seen a positive trend in temperatures,  as demonstrated by Figure 2 below, only the weather data from the last two decades (2000-2021) were included for analysis.
+ 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.35]{"../figures/global_warming.png"}
+\caption{Annual average state temperatures in the US from 1895 to 2021. }
+\end{figure}
 
 
-\subsubsection{Causal Inference}
+\begin{wrapfigure}{R}{0.5\textwidth}
+\centering
+\includegraphics[scale=0.55]{"../figures/state_month_temps_FL.png"}
+\caption{State temperatures (F) over time.}
+\end{wrapfigure}
+The state name was extracted from the Division names using regular expressions, and the date, stored in YYYYMM format, was parsed into month and year columns. Next, to obtain a single metric for each state (with a given month and year), the data were grouped by state and aggregate by taking an average of the temperatures. For the time range in which we have COVID data, these monthly averages are plotted for each state in Figure 3.  Florida is highlighted as a clear outlier in its monthly weather temperatures, remaining closer to moderate year-round. 
+
+From the weather data, baseline monthly average were compute from recent historical values (2000-2019), and monthly averages per state were computed for the months during the pandemic (April 2020 to March 2021). Finally, when this data was merged with finer granularity data (e.g. daily), the monthly values were assigned to all days within the given month. This does allow for some ``future data leakage" when current monthly averages are fed into a model which incorporates implicit weather data from later in the month. Given more time, this would have been handled by computing an `expected monthly average` by taking the previous month's average, computing a delta from the recent historical average for that month, and adding that same delta to the historical average for the current month. 
+
+%
+%\subsubsection{Vaccination Data}
+%The CDC maintains a database of vaccination data. 
+
+
+\subsection{Causal Inference}
 %a brief overview of causal inference, which should be written in a way such that another student in Data 100 who has never been exposed to the concept can carry out the analyses involving the datasets in your project.
 
 A black-box forecasting model that can predict COVID-19 cases based on data that is measurable prior to the time of forecasting can be used in allocating resources for hospitals such as ventilators or health care workers as well as vaccines. However such a model would not provide any underlying information about the \textit{causes} of spikes in case number and may be limited in the public health policy ramifications. 
@@ -155,7 +203,7 @@ Bootstrapping is based on the idea of resampling. If we had access to the overal
 
 One final issue that must be considered when attempting to infer causality from a linear model is the issue of colinearity. The meaning of a coefficient in a linear model is the effect of that feature \textit{while holding all others constant}. In the case that two or more features are linearly dependent, i.e. one can be expressed as a linear combination of the others, then it will be impossible to vary one without changing the others as well according to their linear relationship. Thus interpreting the coefficient becomes meaningless. For example with two features that are multiples of each other, slight changes in the data could result in one feature having a positive coefficient and the other with a near-zero coefficient, while a different model may reverse these effects. As a result, the confidence intervals for \textit{both} coefficients are likely to contain zero, since each variable is masking the effect of the other across different models. 
 
-\todo{ADD CAUSAL INFERENCE REMARKS FOR MY MODEL(S)!!}
+%\todo{ADD CAUSAL INFERENCE REMARKS FOR MY MODEL(S)!!}
 
 %write up "causal inference" for modeling, i.e. bootstrapping confidence intervals for coefficients and what that means. 
 
@@ -171,34 +219,73 @@ One final issue that must be considered when attempting to infer causality from 
 
 
 
-\subsubsection{Forecast Modeling}
+\subsection{Forecast Modeling}
 
-ex-ante vs post-ante forecasting article:\\
-https://otexts.com/fpp2/forecasting-regression.html\#ex-ante-versus-ex-post-forecasts
 
+Both research aims involve a forecast modeling component, creating a baseline model and then incorporating particular features into the model and comparing performance. When training and interpreting forecasting models, it is important to consider the aim of the model in its construction. There are two types of forecasting models: ex-ante and ex-post. In an ex-ante model, the forecast should aim to predict \textit{future} outcomes, using only data up to the moment a forecast is made. In a ex-post model, any data may be used, including future data. In this case the model will not have true \textit{predictive} power, since making a future prediction will require future data first. However such models can be useful for interpreting relationships. 
+In this research, we would like our models to have predictive capabilities and thus stick to ex-ante models. 
+%
+To avoid leaking the `future' into training, we must split our data in a temporal fashion\footnote{rather than taking random subsets of dates or even random subsets of states}. The primary data has daily entries for a span of twelve months, ten of which are used for training and one each for validation and testing. 
+
+% 
+%ex-ante vs post-ante forecasting article:\\
+%https://otexts.com/fpp2/forecasting-regression.html\#ex-ante-versus-ex-post-forecasts
+%%
+
+\subsubsection{Weather Modeling}
+
+
+\begin{wrapfigure}{R}{0.4\textwidth}
+\centering
+\includegraphics[scale=0.45]{"../figures/case_rates_by_temp.png"}
+\caption{Case rates by temperature.}
+\end{wrapfigure}
+Over the course of the pandemic, scientists have realized that COVID transmission is low in outdoor settings, but indoors exposure maintains a high risk of infection. During warm months, people can easily adhere to outdoor only gatherings, but during particularly hot or cold weather, people are more likely to gather indoors, thus increasing possible exposure. 
+
+After computing daily counts for new confirmed cases and taking these as a proportion of the total state population, we grouped the case rates by the temperature of the month in which they occurred and plotted these clusters for several states (Figure 4).
+
+For each state shown, we see that lower temperatures have wider spreads of case rates, and in particular contain the highest values for each state. One interesting note is that these `cold weather effects' occur at different temperatures for different states. For example, California (in green) sees a spike in case rates around 45-50 degrees, whereas Washington maintains fairly low rates in that range, but sees increases at 40 degrees and below. On the other end of the spectrum, Louisiana, a warmer state, sees potential `cold weather` spikes as high as 60 degrees. 
+
+This difference between states is easily understood since what may feel `cold' varies depending on state norms and average temperatures. Washington is a colder state than California which in turn is colder than Louisiana. To incorporate this effect into our data then, we computed for each entry how far below the recorded temperature was from the state's annual average temperature, taking a value of 0 when the recorded temperature was higher (selecting on `cold' deviations). This metric was then fed into the model both as a raw entry in addition to case data, and as a multiplier for the existing case rates. 
+
+A baseline model was first trained using recent daily confirmed case rates, from the past 14 days (the length of possible COVID incubation). 
+Each weather variant of the model was then given additional features from weather data and trained on all states in the training data. Since the model is fed state level data, it is trained to make predictions on a state level. Thus to measure the models accuracy, we compute \textit{for each state} the root mean-squared error (RSME) on each data set and then averaged the state RSMEs to get a single metric. 
+
+\subsubsection{Death by Age Modeling}
+
+\newpage
 
 \section{Results}
 
-\subsubsection{Dataset Findings}
-% Interesting findings* about each dataset when analyzed individually. Include visualizations and descriptions of data cleaning and data transformation necessary to perform the analysis that led to your findings.
  
- %Interesting findings* involving your datasets. Include visualizations and descriptions of data cleaning and data transformation necessary to perform the analysis that led to your findings. 
- 
- 
-%* Examples of interesting findings: interesting data distributions and trends, correlations between different features, the relationship between the data distribution for the general population and specific datasets (e.g., the gender distribution in the census dataset vs. in the mental health dataset), specific features that are notably effective/ineffective for prediction.
- 
-\subsubsection{Model Findings}
+\subsection{Model Findings}
 %Analysis of your findings to answer your research question(s). Include visualizations and specific results. If your research questions contain a modeling component, you must compare the results using different inference or prediction methods (e.g., linear regression, logistic regression, or classification and regression trees). Can you explain why some methods performed better than others?
 
 
-\subsubsection{Limitations and Future Research}
+\subsubsection{Weather Modeling}
+
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{"../figures/weather_model_report.png"}
+\caption{Model Performance Metrics for Weather Models}
+\end{figure}
+
+
+
+
+\subsubsection{Death by Age Modeling}
+
+
+
+\subsection{Limitations and Future Research}
  An evaluation of your approach and discuss any limitations of the methods you used.
 
 Describe any surprising discoveries that you made and future work.
 
 
-\section{Appendices}
-\section{References}
+
 
 
 %--/Paper--
