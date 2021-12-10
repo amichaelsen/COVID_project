@@ -292,17 +292,24 @@ While Model 3 performs similarly to the previous two models, Model 4, which has 
 
 \begin{wrapfigure}{R}{0.4\textwidth}
 \includegraphics[scale=0.5]{"../figures/initial_death_pca.png"}
-\caption{Model Performance Metrics for Weather Models}
+\caption{Deaths Age Distribution PCA}
 \end{wrapfigure}
-some ttext here fsajf
-some ttext here fsajf
-some ttext here fsajf
-some ttext here fsajf
-some ttext here fsajf
-some ttext here fsajf
+The results of the first two principal components for each state\footnote{still only considering continental US states and the District of Columbia} from PCA on the death proportions by age for the months of April 2020 to March 2021 are shown in Figure 6. The first principal component accounts for approximately 35\% of the variance, while the second accounts for 15\%. We see from the scatter plot that most states are clustered in an oval cloud, with two strands of outliers to the lower left and lower right (labeled). The two states with the higher PC1 values are Texas and California, which are also the states with the highest populations in the United States. In contrast, Minnesota, Vermont, and Wyoming are much less densely populated. Since COVID spikes (and thus likely deaths) are prevalent in heavily populated cities, this first principal component might be capturing a ``population density" metric for the states. We also see that the District of Columbia appears as an outlier here, which seems reasonable since it is the only city represented in the dataset. 
+
+Next we want to split the months into pre and post vaccine sets and perform the same PCA analysis for each. Vaccine roll-out began in early 2021, so the pre-vaccine months are taken to be all of those in 2020 and the post-vaccine months (which capture only the beginning of the effects of vaccination) are January through March of 2021. The results for the first two components of each PCA are shown below. 
 
 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.45]{"../figures/pre_vaccine_death_pca.png"}
+%\end{figure}
+%
+%\begin{figure}[h]
+\includegraphics[scale=0.45]{"../figures/post_vaccine_death_pca.png"}
+\caption{Pre- and Post-Vaccine Deaths Age Distribution PCA}
+\end{figure}
 
+For pre-vaccine data, the first two principal components capture 31\% and 16\% variance, compared to the post-vaccine data, where they account for 59\% and 17\% of the variance. In the pre-vaccine PCA, we see a picture very similar to our initial analyses, although reflected and slightly rotated. This is not surprising as the pre-vaccine data accounts for three quarters of the data used for the first. However when we examine post-vaccine data by itself, we get a drastically different picture. In this figure we see a large oval cluster of states with positive PC2 and larger PC1, with a small tight knit cluster in the lower left (negative PC2 and small PC1). The small cluster includes the states Delaware, Maine, Montana, North Carolina, North Dakota, South Dakota, and Vermont. These states have (relatively) low and dispersed populations, but saw vaccinations rise quickly once available (compared to more vaccine hesitant states). 
 
 %\subsection{Limitations and Future Research}
 % An evaluation of your approach and discuss any limitations of the methods you used.
