@@ -24,7 +24,7 @@
 
 \title{DATA 200 Graduate Project\\ {\Large Topic 1: COVID-19}\\
 {\large Dataset A: Testing \& Mortality Statistics}}
-\author{ Anya Michaelsen (3034964414) }
+\author{ Anya Michaelsen (SID 3034964414) }
 \date{}
 
 \begin{document}
@@ -82,7 +82,8 @@ Throughout the course of the pandemic in the United States, there have been seve
 The goal of this research is to produce models for COVID-19 cases, as measured by `Confirmed Cases' using state level data for COVID-19 metrics, and explore the effects of several possible variables, including weather temperature data,  the distribution of cases by age, and adjacent state COVID-19 metrics.  Specifically, the aims are: 
 \begin{enumerate}
 \item[\bf Q1] Can weather data, both current and historical averages, be used to improve state-level models for the spread of COVID-19? Can we infer from these models whether extreme temperatures, (high, low, or either), affect the spread of COVID-19? 
-\item[\bf Q2] Does the ratio of COVID-19 cases by age have any significant effect in predicting COVID-19 deaths?
+%\item[\bf Q2] Does the ratio of COVID-19 cases by age have any significant effect in predicting COVID-19 deaths?
+\item[\bf Q2] What, if any, patterns can we identify in the proportion of deaths by age across states? Does this analysis change if we examine pre-vaccine data separately from post-vaccine data? 
 %\item[\bf Q3] Does incorporating COVID data from adjacent states significantly improve our state level COVID models?
 \end{enumerate}
 
@@ -114,7 +115,8 @@ The goal of this research is to produce models for COVID-19 cases, as measured b
 
 In modeling the spread of infectious disease, a common model is the SIR model, which splits populations into three groups: S-Susceptible, I-Infected, and R-Recovered (or sometimes Removed). Then probabilities are assigned for moving from S to I to R. Expansions on this model add addition categories such E-Exposed, or V-Vaccinated\footnote{ \href{https://www.nature.com/articles/s41598-021-84055-6}{\textit{Inefficiency of SIR models in forecasting COVID-19 epidemic: a case study of Isfahan} Shiva Moein et. al.}}. Some studies have also considered the effects of temperatures as a possible predictor for COVID transmission\footnote{\href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7793668/}{\textit{Does Temperature Affect COVID-19 Transmission?}, Aly Zein Elabdeen Kassem}}. Other studies still have explore the effects (and possible interactions) of age and sex on fatality rates from COVID\footnote{\href{https://www.nature.com/articles/s41598-021-97711-8}{\textit{An international comparison of age and sex dependency of COVID-19 deaths in 2020: a descriptive analysis} Peter Bauer, Jonas Brugger, Franz K\"onig \& Martin Posch} }.
 
-
+% another SIER model example 
+%https://www.medrxiv.org/content/10.1101/2020.03.21.20040303v2.full 
 
 
 \section{Methodology}
@@ -222,7 +224,7 @@ One final issue that must be considered when attempting to infer causality from 
 \subsection{Forecast Modeling}
 
 
-Both research aims involve a forecast modeling component, creating a baseline model and then incorporating particular features into the model and comparing performance. When training and interpreting forecasting models, it is important to consider the aim of the model in its construction. There are two types of forecasting models: ex-ante and ex-post. In an ex-ante model, the forecast should aim to predict \textit{future} outcomes, using only data up to the moment a forecast is made. In a ex-post model, any data may be used, including future data. In this case the model will not have true \textit{predictive} power, since making a future prediction will require future data first. However such models can be useful for interpreting relationships. 
+The first research aim involves a forecast modeling component, creating a baseline model and then incorporating particular features into the model and comparing performance. When training and interpreting forecasting models, it is important to consider the aim of the model in its construction. There are two types of forecasting models: ex-ante and ex-post. In an ex-ante model, the forecast should aim to predict \textit{future} outcomes, using only data up to the moment a forecast is made. In a ex-post model, any data may be used, including future data. In this case the model will not have true \textit{predictive} power, since making a future prediction will require future data first. However such models can be useful for interpreting relationships. 
 In this research, we would like our models to have predictive capabilities and thus stick to ex-ante models. 
 %
 To avoid leaking the `future' into training, we must split our data in a temporal fashion\footnote{rather than taking random subsets of dates or even random subsets of states}. The primary data has daily entries for a span of twelve months, ten of which are used for training and one each for validation and testing. 
@@ -251,20 +253,24 @@ This difference between states is easily understood since what may feel `cold' v
 A baseline model was first trained using recent daily confirmed case rates, from the past 14 days (the length of possible COVID incubation). 
 Each weather variant of the model was then given additional features from weather data and trained on all states in the training data. Since the model is fed state level data, it is trained to make predictions on a state level. Thus to measure the models accuracy, we compute \textit{for each state} the root mean-squared error (RSME) on each data set and then averaged the state RSMEs to get a single metric. 
 
-\subsubsection{Death by Age Modeling}
+\subsubsection{Death by Age Analysis}
+
+To analyze patterns in death statistics by state, we took the data set containing deaths by age group by state and month, and created larger age bins: 0-29 years, 30-64 years, and 65 years and older. The values for each column represented the proportion of COVID-19 deaths that month belonging to the specified age group (within a given state). This was then pivoted so that for each state, there was a column for each month and age group pair. This data was then standardized and singular valued decomposition was used to extract the principal components. 
+
+Initially the data for this PCA spanned from April 2020 to March 2021. However given the start of the vaccine roll out in early 2021, a secondary analysis split the deaths data into two clusters, by year and repeated the same principal component analysis on each year. 
+
 
 \newpage
 
 \section{Results}
 
  
-\subsection{Model Findings}
 %Analysis of your findings to answer your research question(s). Include visualizations and specific results. If your research questions contain a modeling component, you must compare the results using different inference or prediction methods (e.g., linear regression, logistic regression, or classification and regression trees). Can you explain why some methods performed better than others?
 
 
-\subsubsection{Weather Modeling}
+\subsection{Weather Modeling}
 
-
+To evaluate the potential effect of cold weather on COVID transmission, we first trained a baseline forecasting model which took as input the confirmed daily cases for the past 14 days for a given state, and tried to predict the daily case rate for the next day. Notably, this model (Model 1 below) saw a significantly \textit{lower} average state RSME on the validation set than on the training set. One possible explanation for this is the temporal nature of the data, such that the training data covers ten months, while the validation set only spans a single month. As a result, an increased variability in case numbers over the first ten months may be due to factors not captured by the data (variants, holiday travel, masking/social distancing policies, etc). As a result, the model has higher error on the training set, despite training on that same data. Since this trend persists throughout all the models considered for this section, it does not impact our analysis or our ability to compare models.
 
 \begin{figure}[h]
 \centering
@@ -272,19 +278,38 @@ Each weather variant of the model was then given additional features from weathe
 \caption{Model Performance Metrics for Weather Models}
 \end{figure}
 
+Next, the average monthly temperatures for each state we combined with the confirmed case data and fed into a new linear model. Since temperature ranges vary by state and both hot and cold extremes are suspected to cause increases, this variable was not expected to improve the model performance significantly. Indeed, this model (Model 2 below) sees a similar average RSME on the training set, and actually a slightly higher average RSME on the validation set. 
+
+The next two models incorporate the computed metric of how far below the state's annual average temperature a given monthly average is. Model 3 incorporates this value as its own feature in the model, while Model 4 scales the cases for the last 14 days by this value (original case numbers are retained in the model as well, since temperatures at or above average have a computed scaling term of 0). 
+
+While Model 3 performs similarly to the previous two models, Model 4, which has the scaled numbers, sees a slight increase on the training set and a larger increase on the validation set. Notably, the effects are not as pronounced as Figure 4 suggested. If colder weather does cause an increase in case transmissions, this might be on a larger time scale than 2 weeks, which is not captured by any of the weather models above. However to the extent that recent weather does affect transmission, the effect might be mediated by the recent case numbers already used by the model which were likely subject to similar temperatures. With only a year of data, and temperatures reported \textit{monthly}, there may not be enough granularity for the model to pick up on temperature sensitivity. 
 
 
 
-\subsubsection{Death by Age Modeling}
+
+
+\subsection{Death by Age Modeling}
+
+\begin{wrapfigure}{R}{0.4\textwidth}
+\includegraphics[scale=0.5]{"../figures/initial_death_pca.png"}
+\caption{Model Performance Metrics for Weather Models}
+\end{wrapfigure}
+some ttext here fsajf
+some ttext here fsajf
+some ttext here fsajf
+some ttext here fsajf
+some ttext here fsajf
+some ttext here fsajf
 
 
 
-\subsection{Limitations and Future Research}
- An evaluation of your approach and discuss any limitations of the methods you used.
 
-Describe any surprising discoveries that you made and future work.
+%\subsection{Limitations and Future Research}
+% An evaluation of your approach and discuss any limitations of the methods you used.
 
+%Describe any surprising discoveries that you made and future work.
 
+%\subsection{Future Research}
 
 
 
